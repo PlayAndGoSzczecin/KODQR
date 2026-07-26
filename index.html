@@ -198,9 +198,9 @@
                     coverImg.style.display = 'block';
                 }
 
-                document.getElementById('price-used').innerText = (gameRow[11] || '--').replace(/"/g, '') + ' zł'; // Kolumna L
-                document.getElementById('price-cash').innerText = (gameRow[8] || '--').replace(/"/g, '') + ' zł';  // Kolumna I
-                document.getElementById('price-trade').innerText = (gameRow[9] || '--').replace(/"/g, '') + ' zł'; // Kolumna J
+                document.getElementById('price-used').innerText = (gameRow[11] || '--').replace(/"/g, ''); // Kolumna L
+document.getElementById('price-cash').innerText = (gameRow[8] || '--').replace(/"/g, '');  // Kolumna I
+document.getElementById('price-trade').innerText = (gameRow[9] || '--').replace(/"/g, ''); // Kolumna J
             } else {
                 document.getElementById('game-card').innerHTML = '<div class="error-message">Nie znaleziono gry o podanym ID.</div>';
             }
