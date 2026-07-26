@@ -141,7 +141,7 @@
 
         <div class="prices-grid">
             <div class="price-box full-width">
-                <div class="price-label">Cena sprzedaży (używana)</div>
+                <div class="price-label" id="price-label">Cena sprzedaży (<span id="game-desc">Opis</span>)</div>
                 <div class="price-value" id="price-used">--</div>
             </div>
             
@@ -170,7 +170,6 @@
         return urlParams.get(param);
     }
 
-    // Prawidłowe parsowanie tekstu CSV z uwzględnieniem wartości ujętych w cudzysłowy
     function parseCSVLine(line) {
         const result = [];
         let cur = '';
@@ -229,11 +228,17 @@
                     coverImg.style.display = 'block';
                 }
 
-                // Pobieramy cenę używanej z kolumny L (indeks 11)
-                document.getElementById('price-used').innerText = formatPrice(gameRow[11]); 
-                // Skup gotówka z kolumny I (indeks 8)
+                // Opis z kolumny D (indeks 3)
+                const description = (gameRow[3] || '').replace(/"/g, '').trim();
+                document.getElementById('game-desc').innerText = description || 'używana';
+
+                // Cena sprzedaży z kolumny E (indeks 4)
+                document.getElementById('price-used').innerText = formatPrice(gameRow[4]); 
+
+                // Wycena gotówka z kolumny I (indeks 8)
                 document.getElementById('price-cash').innerText = formatPrice(gameRow[8]);  
-                // Skup wymiana z kolumny J (indeks 9)
+
+                // Wycena wymiana z kolumny J (indeks 9)
                 document.getElementById('price-trade').innerText = formatPrice(gameRow[9]); 
             } else {
                 document.getElementById('game-card').innerHTML = '<div class="error-message">Nie znaleziono gry o podanym ID.</div>';
