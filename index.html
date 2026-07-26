@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karta Gry</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+        .card { background: #ffffff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 380px; overflow: hidden; border: 1px solid #e5e7eb; }
+        .cover-container { width: 100%; height: 260px; background-color: #e5e7eb; position: relative; }
+        .cover-img { width: 100%; height: 100%; object-fit: cover; }
+        .badge { position: absolute; top: 12px; right: 12px; background: rgba(16, 185, 129, 0.9); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; backdrop-filter: blur(4px); }
+        .badge.brak { background: rgba(239, 68, 68, 0.9); }
+        .content { padding: 20px; }
+        .platform { display: inline-block; background: #eff6ff; color: #2563eb; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 8px; margin-bottom: 8px; }
+        h1 { font-size: 22px; color: #111827; margin-bottom: 6px; line-height: 1.2; }
+        .price { font-size: 26px; font-weight: 800; color: #059669; margin-bottom: 16px; }
+        .description { font-size: 14px; color: #4b5563; line-height: 1.5; margin-bottom: 20px; background: #f9fafb; padding: 12px; border-radius: 10px; }
+        
+        /* Sekcja skupu */
+        .trade-in { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-top: 10px; }
+        .trade-in-title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+        .trade-in-grid { display: flex; gap: 10px; }
+        .trade-box { flex: 1; background: white; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #cbd5e1; }
+        .trade-box-val { font-size: 18px; font-weight: 700; color: #0f172a; }
+        .trade-box-lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+        .loading, .error { text-align: center; padding: 40px 20px; color: #6b7280; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="app">
+    <div class="loading">Ładowanie karty gry...</div>
+</div>
+
+<script>
+    // Link CSV wygenerowany z Twojego arkusza Google Sheets
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS40Z0GFrx-9ueUVPMu7__BtUtj0p8X-rMHp5hqpLxmcIF0FDPf4qbnrm5g0ogJTM2_sZcpMh-ePyBd/pub?output=csv";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameId = urlParams.get('id');
+
+    if (!gameId) {
+        document.getElementById('app').innerHTML = `<div class="error">Zeskanowano kod bez identyfikatora gry.</div>`;
+    } else {
+        Papa.parse(SHEET_CSV_URL, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const games = results.data;
+                const game = games.find(g => g.ID && g.ID.trim().toLowerCase() === gameId.trim().toLowerCase());
+
+                if (game) {
+                    renderCard(game);
+                } else {
+                    document.getElementById('app').innerHTML = `<div class="error">Nie znaleziono gry o ID: <b>${gameId}</b></div>`;
+                }
+            },
+            error: function() {
+                document.getElementById('app').innerHTML = `<div class="error">Błąd pobierania danych z arkusza.</div>`;
+            }
+        });
+    }
+
+    function renderCard(game) {
+        const isAvailable = (game.Dostepne || '').trim().toUpperCase() === 'TAK';
+        
+        document.getElementById('app').innerHTML = `
+            <div class="cover-container">
+                ${game.OkladkaURL ? `<img src="${game.OkladkaURL}" class="cover-img" alt="${game.Tytul}">` : ''}
+                <div class="badge ${isAvailable ? '' : 'brak'}">
+                    ${isAvailable ? 'Dostępna na półce' : 'Niedostępna'}
+                </div>
+            </div>
+            
+            <div class="content">
+                ${game.Platforma ? `<span class="platform">${game.Platforma}</span>` : ''}
+                <h1>${game.Tytul || 'Brak tytułu'}</h1>
+                <div class="price">${game.Cena || '0'}</div>
+
+                ${game.Opis ? `<div class="description">${game.Opis}</div>` : ''}
+
+                <!-- Sekcja Skupu / Wymiany -->
+                ${(game.SkupGotowka || game.SkupWymiana) ? `
+                    <div class="trade-in">
+                        <div class="trade-in-title">Odkupimy tę grę od Ciebie!</div>
+                        <div class="trade-in-grid">
+                            ${game.SkupGotowka ? `
+                                <div class="trade-box">
+                                    <div class="trade-box-val">${game.SkupGotowka} zł</div>
+                                    <div class="trade-box-lbl">Gotówka</div>
+                                </div>
+                            ` : ''}
+                            ${game.SkupWymiana ? `
+                                <div class="trade-box">
+                                    <div class="trade-box-val">${game.SkupWymiana} zł</div>
+                                    <div class="trade-box-lbl">Na wymianę</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+</script>
+
+</body>
+</html>
