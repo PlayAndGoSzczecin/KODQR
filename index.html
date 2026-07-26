@@ -142,17 +142,17 @@
         <div class="prices-grid">
             <div class="price-box full-width">
                 <div class="price-label">Cena sprzedaży (używana)</div>
-                <div class="price-value" id="price-used">-- zł</div>
+                <div class="price-value" id="price-used">--</div>
             </div>
             
             <div class="price-box">
                 <div class="price-label">Wycena przy gotówce</div>
-                <div class="price-value" id="price-cash">-- zł</div>
+                <div class="price-value" id="price-cash">--</div>
             </div>
 
             <div class="price-box">
                 <div class="price-label">Wycena przy wymianie</div>
-                <div class="price-value" id="price-trade">-- zł</div>
+                <div class="price-value" id="price-trade">--</div>
             </div>
         </div>
 
@@ -199,8 +199,8 @@
                 }
 
                 document.getElementById('price-used').innerText = (gameRow[11] || '--').replace(/"/g, ''); // Kolumna L
-document.getElementById('price-cash').innerText = (gameRow[8] || '--').replace(/"/g, '');  // Kolumna I
-document.getElementById('price-trade').innerText = (gameRow[9] || '--').replace(/"/g, ''); // Kolumna J
+                document.getElementById('price-cash').innerText = (gameRow[8] || '--').replace(/"/g, '');  // Kolumna I
+                document.getElementById('price-trade').innerText = (gameRow[9] || '--').replace(/"/g, ''); // Kolumna J
             } else {
                 document.getElementById('game-card').innerHTML = '<div class="error-message">Nie znaleziono gry o podanym ID.</div>';
             }
